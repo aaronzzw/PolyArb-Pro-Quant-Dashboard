@@ -1,0 +1,5 @@
+{
+  "name": "PolyArb Pro Quant Dashboard",
+  "description": "A high-performance production-ready dashboard for Polymarket arbitrage, featuring real-time price monitoring, sliding window crash detection (15% drop), two-leg execution tracking, and emergency kill-switch controls.",
+  "requestFramePermissions": []
+}
