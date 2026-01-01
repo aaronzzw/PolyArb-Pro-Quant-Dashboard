@@ -9,53 +9,62 @@ interface TerminalLogsProps {
 
 const TerminalLogs: React.FC<TerminalLogsProps> = ({ orders, signals }) => {
   return (
-    <div className="h-full flex flex-col">
-      <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-black">
-        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Execution Core</h3>
-        <div className="flex gap-1">
+    <div className="h-full flex flex-col bg-[#010409]">
+      <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-[#0d1117]">
+        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Execution Engine</h3>
+        <div className="flex gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse delay-75"></span>
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse delay-150"></span>
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse delay-100"></span>
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto scrollbar-hide p-3 mono text-[10px] space-y-2 bg-black selection:bg-blue-500/30">
+      <div className="flex-1 overflow-y-auto scrollbar-hide p-3 mono text-[10px] space-y-3 bg-[#010409]">
         {signals.length === 0 && (
-          <div className="text-slate-700 italic border border-dashed border-slate-800 p-4 text-center rounded">
-            [SYS_MONITOR] STANDBY...<br/>ALL_MARKETS_STABLE
+          <div className="text-slate-700 italic border border-dashed border-slate-800/50 p-6 text-center rounded">
+            [SYS_READY] LISTENING FOR VOLATILITY SPIKES...
           </div>
         )}
         
         {signals.map((sig, i) => (
-          <div key={i} className="border-l-2 border-blue-500 pl-3 py-1 mb-3 bg-blue-500/5 group hover:bg-blue-500/10 transition-colors">
-            <div className="flex justify-between items-baseline">
-              <span className="text-blue-400 font-bold uppercase tracking-tighter">[{sig.marketId}] CRASH_{sig.dropPercent.toFixed(1)}%</span>
+          <div key={i} className="border-l-2 border-blue-600 pl-3 py-1 bg-blue-600/5 group hover:bg-blue-600/10 transition-all rounded-r">
+            <div className="flex justify-between items-baseline mb-1">
+              <span className="text-blue-500 font-black uppercase tracking-tighter">[{sig.marketId}] SNIPE_TRIGGER</span>
               <span className="text-[8px] text-slate-600">{new Date(sig.timestamp).toLocaleTimeString()}</span>
             </div>
-            <div className="text-slate-500 text-[9px] mb-1">λ={sig.basePrice.toFixed(3)} → {sig.currentPrice.toFixed(3)} (Δt=3s)</div>
-            <div className="space-y-0.5">
+            <div className="text-[9px] mb-1.5">
+              <span className="text-red-500 font-bold">-{sig.dropPercent.toFixed(1)}%</span>
+              <span className="text-slate-600 mx-1">/</span>
+              <span className="text-slate-400">TICK_LATENCY: {sig.executionLatency.toFixed(2)}ms</span>
+            </div>
+            <div className="space-y-1">
                 {sig.leg1 && (
-                  <div className="text-green-400/90 font-bold">
-                    <i className="fas fa-check-double mr-1 text-[8px]"></i> 
-                    SNIPE_L1_EXECUTED @ {sig.leg1.price.toFixed(4)}
+                  <div className="text-green-400 font-bold border-t border-slate-800/50 pt-1">
+                    <i className="fas fa-arrow-right mr-1 text-[8px]"></i> 
+                    FOK_ORDER: {sig.leg1.price.toFixed(4)} [SIGNED_LOCAL]
                   </div>
                 )}
                 {sig.leg2 && (
-                  <div className="text-cyan-400/90 font-bold border-t border-slate-800 mt-1 pt-1">
-                    <i className="fas fa-shield-virus mr-1 text-[8px]"></i> 
-                    HEDGE_L2_EXECUTED @ {sig.leg2.price.toFixed(4)} (SUM=0.945)
+                  <div className="text-cyan-400 font-bold">
+                    <i className="fas fa-shield-alt mr-1 text-[8px]"></i> 
+                    HEDGE_H2: {sig.leg2.price.toFixed(4)} [EXECUTED]
+                  </div>
+                )}
+                {!sig.leg2 && (
+                  <div className="text-orange-500 font-bold flex items-center gap-1">
+                    <i className="fas fa-exclamation-triangle text-[8px]"></i> 
+                    HEDGE_FAILED: SUM_RATIO > 0.95
                   </div>
                 )}
             </div>
           </div>
         ))}
 
-        {orders.length > 0 && <div className="text-[8px] text-slate-800 uppercase mt-4 mb-2 tracking-[0.2em] font-black border-t border-slate-900 pt-2">Raw Transaction History</div>}
+        {orders.length > 0 && <div className="text-[8px] text-slate-700 uppercase mt-4 mb-2 tracking-[0.2em] font-black border-t border-slate-900 pt-2">Mem-Buffer Snapshot</div>}
         
         {orders.map((order, i) => (
-          <div key={i} className="text-slate-600 border-b border-slate-900 pb-1 flex justify-between">
-            <span>{order.market}: {order.side} {order.outcome} @ {order.price.toFixed(3)}</span>
-            <span className="text-green-800 font-bold">ACK</span>
+          <div key={i} className="text-slate-600 border-b border-slate-900/50 pb-1 flex justify-between font-mono text-[9px]">
+            <span className="truncate">{order.market} {order.side} {order.outcome} @ {order.price.toFixed(3)}</span>
+            <span className="text-green-900 font-black">ACK_{order.latencyMs.toFixed(1)}ms</span>
           </div>
         ))}
       </div>
